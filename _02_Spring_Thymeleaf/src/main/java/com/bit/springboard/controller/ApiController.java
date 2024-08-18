@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,40 +26,67 @@ public class ApiController {
     private final MemberService memberService;
 
     // @Operation: API 설명 추가
-    // @ApiResponses: 상태 코드에 대한 설명 추가
     @Operation(summary = "Member 등록")
+    // @ApiResponses: 상태코드에 대한 설명 추가
     @ApiResponses(value = {
             // @ApiResponse: 각각 상태 코드에 대한 설명 추가
-            @ApiResponse(responseCode = "201", description = "Member 등록됨", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDto.class)) }),
-            @ApiResponse(responseCode = "400", description = "잘못된 파라미터 값", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content)
+            @ApiResponse(responseCode = "201",
+                         description = "Member 등록됨",
+                         content = { @Content(mediaType = "application/json",
+                                              schema = @Schema(implementation = ResponseDto.class)) }
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 파라미터 값",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error",
+                    content = @Content
+            )
     })
     @PostMapping("/members")
     public ResponseEntity<?> save(
-            // @Parameter: Api 를 호출할 때 보내는 파라미터에 대한 설명 추가
+            // @Parameter: Api를 호출할 때 보내는 파라미터에 대한 설명추가
             @Parameter(description = "새로운 사용자의 username, password, email, nickname, tel")
             MemberDto memberDto) {
         ResponseDto<MemberDto> responseDto = new ResponseDto<>();
         try {
             MemberDto savedMemberDto = memberService.save(memberDto);
             responseDto.setStatusCode(HttpStatus.CREATED.value());
-            responseDto.setStatusMessage("Created");
+            responseDto.setStatusMessage("CREATED");
             responseDto.setData(savedMemberDto);
-            return ResponseEntity.created(URI.create("/members/")).body(responseDto);
+            return ResponseEntity.created(URI.create("/members")).body(responseDto);
         } catch(Exception e) {
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
+
     @Operation(summary = "모든 Member 목록 조회")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",description = "모든 Member 목록 조회 성공",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ResponseDto.class)) }),
-            @ApiResponse(responseCode = "500",description = "Internal Server Error",content = @Content)
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "모든 Member 목록 조회 성공",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ResponseDto.class)
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error",
+                    content = @Content
+            )
     })
     @GetMapping("/members")
     public ResponseEntity<?> findAll() {
         ResponseDto<MemberDto> responseDto = new ResponseDto<>();
+
         try {
             List<MemberDto> memberDtoList = memberService.findAll();
             responseDto.setStatusCode(HttpStatus.OK.value());
@@ -66,7 +94,7 @@ public class ApiController {
             responseDto.setDataList(memberDtoList);
 
             return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
+        } catch(Exception e) {
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
@@ -74,64 +102,109 @@ public class ApiController {
     }
 
     @Operation(summary = "특정 Member 조회")
-    @ApiResponses(value = {
-                    @ApiResponse(responseCode = "200",description = "특정 Member 조회 성공",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ResponseDto.class))}),
-                    @ApiResponse(responseCode = "400",description = "잘못된 파라미터 값",content = @Content),
-                    @ApiResponse(responseCode = "500",description = "Internal Server Error",content = @Content)
-    })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "특정 Member 조회 성공",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = ResponseDto.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 파라미터 값",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal Server Error",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/members/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") int id) {
+    public ResponseEntity<?> findById(@Parameter(description = "조회할 Member의 Id") @PathVariable("id") int id) {
         ResponseDto<MemberDto> responseDto = new ResponseDto<>();
 
         try {
             MemberDto memberDto = memberService.findById(id);
+
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("OK");
             responseDto.setData(memberDto);
 
             return ResponseEntity.ok(responseDto);
-
-        } catch (Exception e) {
+        } catch(Exception e) {
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
-
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
 
     @Operation(summary = "특정 Member 삭제")
-    @ApiResponses(value = {
-                    @ApiResponse(responseCode = "204",description = "특정 Member 삭제 성공",content = @Content),
-                    @ApiResponse(responseCode = "400",description = "잘못된 파라미터 값",content = @Content),
-                    @ApiResponse(responseCode = "500",description = "Internal Server Error", content = @Content)
-    })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "특정 Member 삭제 성공",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 파라미터 값",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal Server Error",
+                            content = @Content
+                    )
+            }
+    )
     @DeleteMapping("/members/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") int id) {
+    public ResponseEntity<?> remove(@Parameter(description = "삭제할 Member의 Id") @PathVariable("id") int id) {
         ResponseDto<MemberDto> responseDto = new ResponseDto<>();
 
         try {
-            memberService.deleteById(id);
-
+            memberService.remove(id);
 
             return ResponseEntity.noContent().build();
-
-        } catch (Exception e) {
+        } catch(Exception e) {
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
-
+    
     @Operation(summary = "특정 Member 수정")
-    @ApiResponses(value = {
-                    @ApiResponse(responseCode = "200",description = "특정 Member 수정 성공",content = @Content(mediaType = "application/json",schema = @Schema(implementation = ResponseDto.class))),
-                    @ApiResponse(responseCode = "400",description = "잘못된 파라미터 값",content = @Content),
-                    @ApiResponse(responseCode = "500",description = "Internal Server Error",content = @Content)
-    })
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "특정 Member 수정 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 파라미터 값",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal Server Error",
+                            content = @Content
+                    )
+            }
+    )
     @PatchMapping("/members/{id}")
-    // @RequestBody 로 받는 경우는 application/json 형태로 처리하는 경우 사용.
-    // 기본적으로 urlencoded 의 경우 @modelAttribute 혹은 @RequestParam 이 사용.
-    public ResponseEntity<?> update(
+    public ResponseEntity<?> modify(
             @Parameter(description = "수정할 Member의 Id")
             @PathVariable("id") int id,
             // x-www-form-urlencoded형태는
@@ -146,19 +219,26 @@ public class ApiController {
 
         try {
             memberDto.setId(id);
-            MemberDto modifiedMemberDto = memberService.update(memberDto);
+            MemberDto modifiedMemberDto = memberService.modify(memberDto);
 
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("OK");
             responseDto.setData(modifiedMemberDto);
 
             return ResponseEntity.ok(responseDto);
-
-        } catch (Exception e) {
+        } catch(Exception e) {
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
+
+
+
+
+
+
+
+
 
 }

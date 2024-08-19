@@ -3,6 +3,8 @@ package com.bit.springboard.controller;
 import com.bit.springboard.dto.MemberDto;
 import com.bit.springboard.dto.ResponseDto;
 import com.bit.springboard.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,6 +99,47 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/join")
+    public ModelAndView join(MemberDto memberDto) {
+        memberService.join(memberDto);
+
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("member/login");
+
+        return mav;
+    }
+
+    @PostMapping("/login")
+    public ModelAndView login(MemberDto memberDto,
+                              HttpSession session,
+                              HttpServletResponse response) {
+        ModelAndView mav = new ModelAndView();
+
+        try {
+            MemberDto loginMember = memberService.login(memberDto);
+
+            session.setAttribute("loginMember", loginMember);
+
+            // "/"로 리다이렉트 시키기
+            response.sendRedirect("/");
+        } catch(Exception e) {
+            mav.addObject("loginFailMsg", e.getMessage());
+            mav.setViewName("member/login");
+        }
+
+        return mav;
+    }
+
+    @GetMapping("/logout")
+    public void logout(HttpSession session,
+                       HttpServletResponse response) {
+        try {
+            session.invalidate();
+            response.sendRedirect("/member/login");
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
 
 

@@ -88,6 +88,70 @@
                   nicknameCheck = false;
                   $("#btn-nickname-check").attr("disabled", false);
                });
+
+               const validatePassword = (password) => {
+                   return /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*+=-]).{9,}$/.test(password);
+               }
+
+               $("#password").on("change", (e) => {
+                   if(validatePassword(e.target.value)) {
+                       passwordCheck = true;
+                       $("#password-check").hide();
+                   } else {
+                       passwordCheck = false;
+                       $("#password-check").show();
+                   }
+
+                   if(e.target.value === $("#password-confirm").val()) {
+                       passwordConfirm = true;
+                       $("#password-confirm-result").text("비밀번호가 일치합니다.");
+                       $("#password-confirm-result").css("color", "green");
+                   } else {
+                       passwordConfirm = false;
+                       $("#password-confirm-result").text("비밀번호가 일치하지 않습니다.");
+                       $("#password-confirm-result").css("color", "red");
+                   }
+               });
+
+               $("#password-confirm").on("change", (e) => {
+                   $("#password-confirm-result").show();
+
+                   if(e.target.value === $("#password").val()) {
+                       passwordConfirm = true;
+                       $("#password-confirm-result").text("비밀번호가 일치합니다.");
+                       $("#password-confirm-result").css("color", "green");
+                       return;
+                   }
+
+                   passwordConfirm = false;
+                   $("#password-confirm-result").text("비밀번호가 일치하지 않습니다.");
+                   $("#password-confirm-result").css("color", "red");
+               });
+               $("join-form").on("submit", (e) => {
+                  if(!usernameCheck) {
+                      e.preventDefault();
+                      alert("아이디 중복체크를 진행하세요");
+                      return;
+                  }
+
+                  if(!passwordCheck) {
+                      e.preventDefault();
+                      alert("비밀번호는 영문자, 숫자, 특수문자 조합의 9자리 이상으로 설정하세요.");
+                      return;
+                  }
+
+                  if(!passwordConfirm) {
+                      e.preventDefault();
+                      alert("비밀번호가 일치하지 않습니다.");
+                      return;
+                  }
+
+                  if(!nicknameCheck) {
+                      e.preventDefault();
+                      alert("닉네임 중복체크를 진행하세요.");
+                      return;
+                  }
+               });
             });
         </script>
     </th:block>
@@ -98,7 +162,7 @@
             <h4>회원가입</h4>
         </div>
         <div class="container mt-3 mb-5 w-25">
-            <form id="join-form" action="/user/join.do" method="post">
+            <form id="join-form" action="/member/join" method="post">
                 <div class="form-group">
                     <label for="username">아이디</label>
                     <input type="text" class="form-control" id="username" name="username" required>

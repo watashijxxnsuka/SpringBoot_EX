@@ -22,4 +22,6 @@ public interface MemberMapper {
     int usernameCheck(String username);
 
     int nicknameCheck(String nickname);
+
+    MemberDto findByIdAndPassword(MemberDto memberDto);
 }

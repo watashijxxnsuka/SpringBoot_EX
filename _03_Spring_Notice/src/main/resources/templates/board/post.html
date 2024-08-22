@@ -125,6 +125,8 @@
                               alert("정상적으로 등록됐습니다.");
                               if(obj.data.type === "free") {
                                   location.href = "/boards/free-list";
+                              } else if(obj.data.type === "notice") {
+                                  location.href = "/boards/notice-list";
                               }
                           }
                       },

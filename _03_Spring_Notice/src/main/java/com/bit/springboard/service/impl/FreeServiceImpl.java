@@ -46,7 +46,7 @@ public class FreeServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDto> findAll(Map<String,String> searchMap, Criteria cri) {
+    public List<BoardDto> findAll(Map<String, String> searchMap, Criteria cri) {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("search", searchMap);
 

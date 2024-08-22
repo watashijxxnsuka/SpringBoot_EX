@@ -14,6 +14,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -41,8 +44,36 @@ public class BoardController {
     }
 
     @GetMapping("/notice-list")
-    public ModelAndView noticeListView() {
+    public ModelAndView noticeListView(@RequestParam Map<String, String> searchMap,
+                                       Criteria cri) {
+        boardService = applicationContext.getBean("noticeServiceImpl", BoardService.class);
+
         ModelAndView mav = new ModelAndView();
+
+        cri.setAmount(9);
+
+        List<Map<String, Object>> noticeList = new ArrayList<>();
+
+        boardService.findAll(searchMap, cri).forEach(boardDto -> {
+            Map<String, Object> map = new HashMap<>();
+
+            map.put("notice", boardDto);
+
+            List<BoardFileDto> noticeFileList = boardService.findFilesById(boardDto.getId());
+
+            if(noticeFileList.size() > 0)
+                map.put("file", noticeFileList.get(0));
+
+            noticeList.add(map);
+        });
+
+//        mav.addObject("noticeList", boardService.findAll(searchMap, cri));
+        mav.addObject("noticeList", noticeList);
+        mav.addObject("searchMap", searchMap);
+
+        int total = boardService.findTotalCnt(searchMap);
+
+        mav.addObject("page", new NoticePageDto(cri, total));
 
         mav.setViewName("board/notice-list");
         return mav;
@@ -128,7 +159,7 @@ public class BoardController {
         return mav;
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> modify(@PathVariable("id") int id,
                                     BoardDto boardDto,
                                     MultipartFile[] uploadFiles,
@@ -179,7 +210,8 @@ public class BoardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> remove(@PathVariable("id") int id, @RequestParam String type) {
+    public ResponseEntity<?> remove(@PathVariable("id") int id,
+                                    @RequestParam("type") String type) {
         if(type.equals("free")) {
             boardService = applicationContext.getBean("freeServiceImpl", BoardService.class);
         } else {
@@ -190,7 +222,7 @@ public class BoardController {
             boardService.remove(id);
 
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        } catch(Exception e) {
             ResponseDto<BoardDto> responseDto = new ResponseDto<>();
 
             responseDto.setStatusCode(500);
@@ -200,7 +232,41 @@ public class BoardController {
         }
     }
 
+    @PostMapping("/notice-list-ajax")
+    public ResponseEntity<?> noticeList(@RequestParam Map<String, String> searchMap, Criteria cri) {
+        ResponseDto<Map<String, Object>> responseDto = new ResponseDto<>();
 
+        try {
+            boardService = applicationContext.getBean("noticeServiceImpl", BoardService.class);
+
+            List<Map<String, Object>> noticeList = new ArrayList<>();
+
+            boardService.findAll(searchMap, cri).forEach(boardDto -> {
+                List<BoardFileDto> boardFileDtoList = boardService.findFilesById(boardDto.getId());
+
+                Map<String, Object> map = new HashMap<>();
+
+                map.put("notice", boardDto);
+
+                if(boardFileDtoList.size() > 0) {
+                    map.put("file", boardFileDtoList.get(0));
+                }
+
+                noticeList.add(map);
+            });
+
+            responseDto.setStatusCode(200);
+            responseDto.setStatusMessage("OK");
+            responseDto.setDataList(noticeList);
+
+            return ResponseEntity.ok(responseDto);
+
+        } catch (Exception e) {
+            responseDto.setStatusCode(500);
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+        }
+    }
 
 
 

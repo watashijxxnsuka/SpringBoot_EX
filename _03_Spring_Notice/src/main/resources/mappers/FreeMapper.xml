@@ -95,7 +95,7 @@
                     AND M.NICKNAME LIKE CONCAT('%', #{search.searchKeyword}, '%')
                 </if>
             </if>
-        LIMIT #{cri.amount} OFFSET #{cri.startNum}
+            LIMIT #{cri.amount} OFFSET #{cri.startNum}
     </select>
 
     <select id="findFilesById"
@@ -168,43 +168,42 @@
     <delete id="removeFiles"
             parameterType="int">
         DELETE FROM FREEBOARD_FILE
-        WHERE BOARD_ID = #{id}
+            WHERE BOARD_ID = #{id}
     </delete>
 
     <delete id="remove"
             parameterType="int">
         DELETE FROM FREEBOARD
-        WHERE ID = #{id}
+            WHERE ID = #{id}
     </delete>
 
     <select id="findTotalCnt"
             parameterType="map"
             resultType="int">
-        SELECT COUNT(*) FROM FREEBOARD F
-        JOIN MEMBER M
-        ON F.WRITER_ID = M.ID
-        WHERE 1=1
-        <if test="searchKeyword != null and searchKeyword != ''">
-            <if test="searchCondition == 'all'">
-                AND(
-                    F.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR F.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR M.NICKNAME LIKE CONCAT('%', #{searchKeyword}, '%')
-                )
+        SELECT COUNT(*)
+            FROM FREEBOARD F
+            JOIN MEMBER M
+              ON F.WRITER_ID = M.ID
+            WHERE 1=1
+            <if test="searchKeyword != null and searchKeyword != ''">
+                <if test="searchCondition == 'all'">
+                    AND (
+                        F.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR F.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                        OR M.NICKNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                    )
+                </if>
+                <if test="searchCondition == 'title'">
+                    AND F.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                </if>
+                <if test="searchCondition == 'content'">
+                    AND F.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                </if>
+                <if test="searchCondition == 'writer'">
+                    AND M.NICKNAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                </if>
             </if>
-            <if test="searchCondition == 'title'">
-                AND F.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-            </if>
-            <if test="searchCondition == 'content'">
-                AND F.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
-            </if>
-            <if test="searchCondition == 'writer'">
-                AND M.NICKNAME LIKE CONCAT('%', #{searchKeyword}, '%')
-            </if>
-        </if>
     </select>
-
-
 
 
 

@@ -7,24 +7,24 @@
     <th:block layout:fragment="script">
         <script>
             $(() => {
-               $("#search-icon").on("click", (e) => {
-                   $("input[name='pageNum']").val(1);
-                  $("#search-form").submit();
-               });
+                $("#search-icon").on("click", (e) => {
+                    $("input[name='pageNum']").val(1);
+                    $("#search-form").submit();
+                });
 
-               $("input[name='searchKeyword']").on("keyPress", (e) => {
-                   if(e.key.toLowerCase() === 'enter') {
-                       $("input[name='pageNum']").val(1);
-                   }
-               });
+                $("input[name='searchKeyword']").on("keypress", (e) => {
+                    if(e.key.toLowerCase() === 'enter') {
+                        $("input[name='pageNum']").val(1);
+                    }
+                });
 
-               $(".pagination a").on("click", (e) => {
-                   e.preventDefault();
+                $(".pagination a").on("click", (e) => {
+                    e.preventDefault();
 
-                   $("input[name='pageNum']").val(e.target.getAttribute("href"));
+                    $("input[name='pageNum']").val(e.target.getAttribute("href"));
 
-                   $("#search-form").submit();
-               });
+                    $("#search-form").submit();
+                });
             });
         </script>
     </th:block>
@@ -42,20 +42,24 @@
                     <div class="col-3">
                         <select class="form-select" name="searchCondition">
                             <option value="all"
-                                    th:selected="${#maps.isEmpty(searchMap) || searchMap.searchCondition == 'all'}">전체</option>
+                                    th:selected="${#maps.isEmpty(searchMap)
+                                                    || searchMap.searchCondition == 'all'}">전체</option>
                             <option value="title"
-                                    th:selected="${!#maps.isEmpty(searchMap) && searchMap.searchCondition == 'title'}">제목</option>
+                                    th:selected="${!#maps.isEmpty(searchMap)
+                                                    && searchMap.searchCondition == 'title'}">제목</option>
                             <option value="content"
-                                    th:selected="${!#maps.isEmpty(searchMap) && searchMap.searchCondition == 'content'}">내용</option>
+                                    th:selected="${!#maps.isEmpty(searchMap)
+                                                    && searchMap.searchCondition == 'content'}">내용</option>
                             <option value="writer"
-                                    th:selected="${!#maps.isEmpty(searchMap) && searchMap.searchCondition == 'writer'}">작성자</option>
+                                    th:selected="${!#maps.isEmpty(searchMap)
+                                                    && searchMap.searchCondition == 'writer'}">작성자</option>
                         </select>
                     </div>
                     <div class="col-9">
                         <div class="row">
                             <div class="col-11">
                                 <input type="text" class="form-control w-100" name="searchKeyword"
-                                       th:value="${!#maps.isEmpty(searchMap) ? searchMap.searchKeyword : ''}">
+                                        th:value="${!#maps.isEmpty(searchMap) ? searchMap.searchKeyword : ''}">
                             </div>
                             <div class="col-1 d-flex align-items-center">
                                 <i class="bi bi-search" id="search-icon"></i>
@@ -78,7 +82,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                    <tr class="board-tr" th:each="free : ${freeList}">
+                    <tr class="board-tr" th:each="free : ${freeList}" th:onclick="'location.href=\'/boards/' + ${free.id} + '?type=free\''">
                         <td th:text="${free.id}"></td>
                         <td>
                             <a th:text="${free.title}"
@@ -95,18 +99,20 @@
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:if="${page.prev}">
                     <a class="page-link link-secondary" aria-label="Previous"
-                       th:href="${page.cri.pageNum - 1}">
+                        th:href="${page.cri.pageNum - 1}">
                         &laquo;
                     </a>
                 </li>
 
                 <li class="page-item" th:each="pageNo : ${#numbers.sequence(page.startPage, page.endPage)}">
                     <a class="page-link link-secondary"
-                       th:text="${pageNo}" th:href="${pageNo}"></a>
+                        th:text="${pageNo}"
+                        th:href="${pageNo}"></a>
                 </li>
 
                 <li class="page-item" th:if="${page.next}">
-                    <a class="page-link link-secondary" aria-label="Next" th:href="${page.cri.pageNum + 1}">
+                    <a class="page-link link-secondary" aria-label="Next"
+                        th:href="${page.cri.pageNum + 1}">
                         &raquo;
                     </a>
                 </li>

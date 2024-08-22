@@ -11,7 +11,7 @@ import java.util.Map;
 public interface BoardService {
     BoardDto post(BoardDto boardDto, MultipartFile[] uploadFiles);
 
-    List<BoardDto> findAll(Map<String,String> searchMap, Criteria cri);
+    List<BoardDto> findAll(Map<String, String> searchMap, Criteria cri);
 
     BoardDto findById(int id);
 

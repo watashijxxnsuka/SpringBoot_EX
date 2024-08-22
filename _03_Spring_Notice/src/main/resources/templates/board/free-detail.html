@@ -84,7 +84,7 @@
                        url: `/boards/${$("#id").val()}?type=free`,
                        type: "delete",
                        success: (obj) => {
-                           alert("정상적으로 삭제되었습니다.")
+                           alert("정상적으로 삭제되었습니다.");
                            location.href = "/boards/free-list";
                        },
                        error: (err) => {

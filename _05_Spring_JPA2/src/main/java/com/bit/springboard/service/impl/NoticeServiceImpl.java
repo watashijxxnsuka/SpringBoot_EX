@@ -9,6 +9,8 @@ import com.bit.springboard.service.BoardService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,16 +53,8 @@ public class NoticeServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDto> findAll(Map<String, String> searchMap, Criteria cri) {
-        Map<String, Object> paramMap = new HashMap<>();
-
-        paramMap.put("search", searchMap);
-
-        cri.setStartNum((cri.getPageNum() - 1) * cri.getAmount());
-
-        paramMap.put("cri", cri);
-
-        return noticeMapper.findAll(paramMap);
+    public Page<BoardDto> findAll(Map<String, String> searchMap, Pageable pageable) {
+        return null;
     }
 
     @Override

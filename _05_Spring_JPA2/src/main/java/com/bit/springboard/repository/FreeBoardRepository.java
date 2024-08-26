@@ -1,6 +1,8 @@
 package com.bit.springboard.repository;
 
 import com.bit.springboard.entity.FreeBoard;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -24,4 +26,12 @@ public interface FreeBoardRepository extends JpaRepository<FreeBoard, Long> {
     Optional<FreeBoard> findByTitle(String title);
 
     List<FreeBoard> findByMemberUsername(String username);
+
+    Page<FreeBoard> findByTitleContainingOrContentContainingOrMemberNicknameContaining(Pageable pageable, String searchKeyword, String searchKeyword1, String searchKeyword2);
+
+    Page<FreeBoard> findByTitleContaining(Pageable pageable, String searchKeyword);
+
+    Page<FreeBoard> findByContentContaining(Pageable pageable, String searchKeyword);
+
+    Page<FreeBoard> findByMemberNicknameContaining(Pageable pageable, String searchKeyword);
 }

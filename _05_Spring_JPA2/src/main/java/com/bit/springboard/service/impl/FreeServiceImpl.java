@@ -14,6 +14,8 @@ import com.bit.springboard.service.BoardService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,14 +65,25 @@ public class FreeServiceImpl implements BoardService {
 
 
     @Override
-    public List<BoardDto> findAll(Map<String, String> searchMap, Criteria cri) {
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("search", searchMap);
+    public Page<BoardDto> findAll(Map<String, String> searchMap, Pageable pageable) {
+        Page<FreeBoard> freeBoardPage = freeBoardRepository.findAll(pageable);
 
-        cri.setStartNum((cri.getPageNum() - 1) * cri.getAmount());
-        paramMap.put("cri", cri);
+        if(searchMap.get("searchKeyword") != null) {
+            if(searchMap.get("searchCondition").toLowerCase().equals("all")) {
+                freeBoardPage =
+                        freeBoardRepository.findByTitleContainingOrContentContainingOrMemberNicknameContaining(
+                                pageable, searchMap.get("searchKeyword"), searchMap.get("searchKeyword"), searchMap.get("searchKeyword")
+                        );
+            } else if (searchMap.get("searchCondition").toLowerCase().equals("title")) {
+                freeBoardPage =  freeBoardRepository.findByTitleContaining(pageable, searchMap.get("searchKeyword"));
+            } else if (searchMap.get("searchCondition").toLowerCase().equals("content")) {
+                freeBoardPage =  freeBoardRepository.findByContentContaining(pageable, searchMap.get("searchKeyword"));
+            } else if (searchMap.get("searchCondition").toLowerCase().equals("writer")) {
+                freeBoardPage =  freeBoardRepository.findByMemberNicknameContaining(pageable, searchMap.get("searchKeyword"));
+            }
+        }
 
-        return freeMapper.findAll(paramMap);
+        return freeBoardPage.map(FreeBoard::toDto);
     }
 
 
@@ -131,6 +144,7 @@ public class FreeServiceImpl implements BoardService {
                 }
             });
         }
+
 
         if(uploadFiles != null && uploadFiles.length > 0) {
             Arrays.stream(uploadFiles).forEach(file -> {
